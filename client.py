@@ -2,7 +2,7 @@ import socket
 
 def start_client():
     # Configuração do servidor
-    host = '127.0.0.133'  # Endereço do servidor
+    host = '127.0.0.1'  # Endereço do servidor
     port = 64535        # Porta do servidor
 
     # Criar um socket TCP/IP
