@@ -3,7 +3,7 @@ import socket
 
 def start_server():
     # Configuração do servidor
-    host = '127.0.0.133'   # Localhost
+    host = '127.0.0.1'   # Localhost
     port = 64535         # Porta para escutar
 
     # Criar um socket TCP/IP
