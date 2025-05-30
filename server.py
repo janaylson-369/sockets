@@ -3,8 +3,8 @@ import socket
 
 def start_server():
     # Configuração do servidor
-    host = '127.0.0.1'   # Localhost
-    port = 12345         # Porta para escutar
+    host = '127.0.0.133'   # Localhost
+    port = 64535         # Porta para escutar
 
     # Criar um socket TCP/IP
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -37,4 +37,4 @@ def start_server():
             print("Conexão encerrada")
 
 if __name__ == "__main__":
-    start_server()
+   start_server()
