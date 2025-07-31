@@ -9,8 +9,8 @@ def receber_mensagens(conn):
             mensagem = conn.recv(1024).decode()
             if mensagem:
                 print(f"\n[Recebido] {mensagem}")
-            except:
-                break
+        except:
+            break
 
 def iniciar_peer(meu_ip, minha_porta, ip_remoto, porta_remota):
     servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,13 +23,13 @@ def iniciar_peer(meu_ip, minha_porta, ip_remoto, porta_remota):
         print(f"Conectado por {addr}!")
         threading.Thread(target=receber_mensagens, args=(conn,), daemon=True).start()
         return conn
-
+    
     cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         cliente.connect((ip_remoto, porta_remota))
-        print(f"Conectado ao peer {ip_remoto}:{porta_remota}!")
+        print(f"Conectado ao peer {ip_remoto}:{porta_remota}")
     except Exception as e:
-        print(f"Erro ao conectar: {e}")
+        print(f"[Erro ao conectar: {e}]")
         cliente = None
 
     conexao_recebida = aceitar_conexao()
@@ -41,6 +41,7 @@ def iniciar_peer(meu_ip, minha_porta, ip_remoto, porta_remota):
                 cliente.send(msg.encode())
             except:
                 print("[Erro ao enviar para peer remoto.]")
+        
         try:
             conexao_recebida.send(msg.encode())
         except:
