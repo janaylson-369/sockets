@@ -1,4 +1,4 @@
-
+# codiguin do alex
 
 import socket
 import threading
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 #the end
 
 
-#codigo alterado
+#codigo alterado GEME
 
 import socket
 import threading
@@ -140,6 +140,87 @@ if __name__ == "__main__":
 
 
 #------------------------------------------------------------------#####
+
+CODIGO PARECIDO COM O ORIGINAL
+
+import socket
+import threading
+
+def receber_mensagens(conn):
+    """Recebe e imprime mensagens de uma conexão."""
+    while True:
+        try:
+            mensagem = conn.recv(1024).decode()
+            if mensagem:
+                print(f"\n[Recebido] {mensagem}")
+            else:
+                print("\n[INFO] Conexão encerrada pelo outro peer.")
+                break
+        except (socket.error, ConnectionResetError):
+            print("\n[ERRO] Conexão perdida.")
+            break
+
+def iniciar_peer(meu_ip, minha_porta, ip_remoto, porta_remota):
+    """Inicia o peer e gerencia as conexões."""
+    
+    servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    servidor.bind((meu_ip, minha_porta))
+    servidor.listen(1)
+    print(f"Esperando conexão em {meu_ip}:{minha_porta}...")
+
+    # A função aninhada aceitará uma conexão
+    def aceitar_conexao():
+        conn, addr = servidor.accept()
+        print(f"Conectado por {addr}!")
+        return conn
+
+    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    conexao_recebida = None
+    conexao_enviada = None
+
+    try:
+        # Tenta conectar ao outro peer
+        cliente.connect((ip_remoto, porta_remota))
+        print(f"Conectado ao peer {ip_remoto}:{porta_remota}")
+        conexao_enviada = cliente
+        
+    except Exception as e:
+        print(f"[ERRO] Não foi possível conectar ao peer remoto. Motivo: {e}")
+        # Se a conexão falhou, o peer atuará apenas como servidor.
+        
+    # Aceita a conexão do outro peer
+    conexao_recebida = aceitar_conexao()
+
+    # Inicia a thread para receber mensagens da conexão aceita
+    threading.Thread(target=receber_mensagens, args=(conexao_recebida,), daemon=True).start()
+
+    # Se a conexão de cliente foi bem-sucedida, também inicia a thread para ela
+    if conexao_enviada:
+        threading.Thread(target=receber_mensagens, args=(conexao_enviada,), daemon=True).start()
+
+    # Loop principal para enviar mensagens para todas as conexões ativas
+    while True:
+        try:
+            msg = input("Você: ")
+            
+            # Envia para a conexão que foi aceita
+            if conexao_recebida:
+                conexao_recebida.send(msg.encode())
+            
+            # Se a conexão de cliente foi estabelecida, envia para ela também
+            if conexao_enviada:
+                conexao_enviada.send(msg.encode())
+                
+        except (socket.error, BrokenPipeError):
+            print("[ERRO] Falha ao enviar mensagem. Conexão perdida.")
+            break
+
+if __name__ == "__main__":
+    iniciar_peer("localhost", 5000, "localhost", 5001)
+
+
+
+#-------------------------------------------------------------------------------------###3
 
 import socket
 
