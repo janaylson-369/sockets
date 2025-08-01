@@ -56,6 +56,91 @@ if __name__ == "__main__":
 
 #the end
 
+
+#codigo alterado
+
+import socket
+import threading
+
+def receber_mensagens(conn):
+    """Lida com o recebimento contínuo de mensagens da conexão."""
+    try:
+        while True:
+            mensagem = conn.recv(1024).decode()
+            if not mensagem:
+                print("\n[INFO] O outro peer encerrou a conexão.")
+                break
+            print(f"\n[Recebido] {mensagem}")
+    except (socket.error, ConnectionResetError):
+        print("\n[ERRO] Conexão perdida.")
+    finally:
+        conn.close()
+
+def enviar_mensagens(conn):
+    """Lida com o envio contínuo de mensagens."""
+    while True:
+        try:
+            msg = input("Você: ")
+            conn.send(msg.encode())
+        except (socket.error, BrokenPipeError):
+            print("[ERRO] Conexão perdida. Encerrando o chat.")
+            break
+    
+def iniciar_peer(meu_ip, minha_porta, ip_remoto, porta_remota, eh_servidor):
+    """Inicia o peer como servidor ou cliente."""
+    
+    if eh_servidor:
+        # Modo Servidor: Espera por uma conexão
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind((meu_ip, minha_porta))
+        sock.listen(1)
+        print(f"Peer 1 (Servidor) esperando conexão em {meu_ip}:{minha_porta}...")
+        conn, addr = sock.accept()
+        print(f"Peer 1 conectado por {addr}!")
+    else:
+        # Modo Cliente: Inicia a conexão
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(f"Peer 2 (Cliente) tentando conectar a {ip_remoto}:{porta_remota}...")
+        try:
+            sock.connect((ip_remoto, porta_remota))
+            print("Peer 2 conectado com sucesso!")
+            conn = sock
+        except ConnectionRefusedError:
+            print(f"[ERRO] Não foi possível conectar ao peer em {ip_remoto}:{porta_remota}.")
+            return
+            
+    # Uma vez conectado, ambas as partes podem enviar e receber
+    
+    thread_receber = threading.Thread(target=receber_mensagens, args=(conn,), daemon=True)
+    thread_receber.start()
+    
+    enviar_mensagens(conn)
+    
+    conn.close()
+    if eh_servidor:
+        sock.close()
+
+
+if __name__ == "__main__":
+    MEU_IP = "10.10.132.208"
+    MINHA_PORTA = 5000
+    IP_REMOTO = "10.10.132.10"
+    PORTA_REMOTA = 5001
+
+    escolha = input("Você quer ser o 'servidor' (esperar conexão) ou o 'cliente' (iniciar conexão)? (s/c): ").lower()
+
+    if escolha == 's':
+        iniciar_peer(MEU_IP, MINHA_PORTA, IP_REMOTO, PORTA_REMOTA, eh_servidor=True)
+    elif escolha == 'c':
+        iniciar_peer(MEU_IP, MINHA_PORTA, IP_REMOTO, PORTA_REMOTA, eh_servidor=False)
+    else:
+        print("Escolha inválida. Por favor, reinicie e escolha 's' ou 'c'.")
+
+
+
+
+#------------------------------------------------------------------#####
+
 import socket
 
 def start_client():
